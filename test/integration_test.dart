@@ -30,12 +30,16 @@ void main() async {
       await emulators.waitForEmulator(running);
       print('Emulator started');
       print('Device name is "${running.name}"');
-      running.command.process.kill();
+      await emulators.stopEmulator(running);
+      // running.command.process.kill();
       await running.command.process.exitCode;
+      /*
       print('Command was ${running.command}');
       print('Exit code was ${running.command.exitCode}');
       print('Stdout was ${running.command.stdout}');
       print('Stderr was ${running.command.stderr}');
+
+       */
 
       // Next up:
       // - wait for the device to be available

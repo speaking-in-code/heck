@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:emulators/emulators.dart';
 import 'package:emulators/src/adb.dart';
 import 'package:emulators/src/avdmanager.dart';
@@ -83,7 +85,7 @@ class Emulators {
     final stop = DateTime.now().add(timeout);
     while (DateTime.now().isBefore(stop)) {
       if (emulator.command.exitCode != null) {
-        throw EmulatorException('Emulator stopped: $emulator');
+        throw EmulatorException('Emulator stopped: ${emulator.command}');
       }
       final devices = await listConnected();
       for (final device in devices.devices) {
@@ -94,5 +96,19 @@ class Emulators {
       await Future.delayed(const Duration(seconds: 1));
     }
     throw EmulatorException('Timed out before $emulator was ready');
+  }
+
+  Future<void> stopEmulator(RunningEmulator emulator,
+      {timeout = const Duration(seconds: 5)}) async {
+    final stop = DateTime.now().add(timeout);
+    emulator.command.process.kill(ProcessSignal.sigterm);
+    while (emulator.command.exitCode == null && DateTime.now().isBefore(stop)) {
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    if (emulator.command.exitCode == null) {
+      print('Killing with prejudice');
+      final out = emulator.command.process.kill(ProcessSignal.sigkill);
+      print('Kill response: $out');
+    }
   }
 }
