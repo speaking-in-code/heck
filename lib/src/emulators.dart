@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:built_collection/built_collection.dart';
 import 'package:emulators/emulators.dart';
 import 'package:emulators/src/adb.dart';
 import 'package:emulators/src/avdmanager.dart';
@@ -11,7 +12,10 @@ import 'package:emulators/src/sdk_config.dart';
 
 import 'flutter.dart';
 import 'models/flutter_devices.dart';
+import 'models/system_image.dart';
 
+// TODO: change these apis to use built_value/built_collection objects
+// where that makes sense.
 class Emulators {
   final SDKConfig _sdkConfig;
 
@@ -22,7 +26,7 @@ class Emulators {
     return ADB.listRunning(command);
   }
 
-  Future<List<String>> listSystemImages() async {
+  Future<BuiltList<SystemImage>> listSystemImages() async {
     final command = Command(_sdkConfig.avdmanager!,
         ['create', 'avd', '-k', 'no-such-image', '-n', 'unused-name']);
     return AVDManager.listSystemImages(command);
@@ -83,19 +87,21 @@ class Emulators {
   Future<void> waitForEmulator(RunningEmulator emulator,
       {timeout = const Duration(minutes: 1)}) async {
     final stop = DateTime.now().add(timeout);
+    FlutterDevices? devices;
     while (DateTime.now().isBefore(stop)) {
       if (emulator.command.exitCode != null) {
         throw EmulatorException('Emulator stopped: ${emulator.command}');
       }
-      final devices = await listConnected();
+      devices = await listConnected();
       for (final device in devices.devices) {
-        if (device.name == emulator.name) {
+        if (device.id == emulator.id) {
           return;
         }
       }
       await Future.delayed(const Duration(seconds: 1));
     }
-    throw EmulatorException('Timed out before $emulator was ready');
+    throw EmulatorException(
+        'Timed out before ${emulator.id} was ready. Available devices: $devices');
   }
 
   Future<void> stopEmulator(RunningEmulator emulator,

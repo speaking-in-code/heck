@@ -10,7 +10,8 @@ abstract class FlutterDevices
   BuiltList<FlutterDevice> get devices;
 
   FlutterDevices._();
-  factory FlutterDevices() = _$FlutterDevices;
+  factory FlutterDevices([void Function(FlutterDevicesBuilder) updates]) =
+      _$FlutterDevices;
   static Serializer<FlutterDevices> get serializer =>
       _$flutterDevicesSerializer;
 }
@@ -41,6 +42,7 @@ abstract class FlutterDevice
   String get id;
 
   FlutterDevice._();
-  factory FlutterDevice() = _$FlutterDevice;
+  factory FlutterDevice([void Function(FlutterDeviceBuilder) updates]) =
+      _$FlutterDevice;
   static Serializer<FlutterDevice> get serializer => _$flutterDeviceSerializer;
 }

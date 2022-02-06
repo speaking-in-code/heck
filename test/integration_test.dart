@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:emulators/emulators.dart';
+import 'package:emulators/src/models/system_image.dart';
 import 'package:test/test.dart';
 
 void main() async {
@@ -16,23 +17,25 @@ void main() async {
     });
 
     tearDownAll(() async {
-      await emulators.deleteDevice(name);
+      // await emulators.deleteDevice(name);
     });
 
     test('Creates and starts device', () async {
       final skinsF = emulators.listSkins();
       final imagesF = emulators.listSystemImages();
       String skin = (await skinsF).first;
-      String image = (await imagesF).first;
-      await emulators.createDevice(name: name, skin: skin, image: image);
+      SystemImage image =
+          (await imagesF).firstWhere((image) => image.osLevel == 'android-23');
+      print('Creating device with skin $skin and image $image');
+      await emulators.createDevice(name: name, skin: skin, image: image.name);
       final running = await emulators.startDevice(name);
-      print('Waiting for emulator to startup');
+      print('Waiting for emulator ${running.id} to startup');
       await emulators.waitForEmulator(running);
       print('Emulator started');
-      print('Device name is "${running.name}"');
-      await emulators.stopEmulator(running);
+      print('Device id is "${running.id}"');
+      //await emulators.stopEmulator(running);
       // running.command.process.kill();
-      await running.command.process.exitCode;
+      //await running.command.process.exitCode;
       /*
       print('Command was ${running.command}');
       print('Exit code was ${running.command.exitCode}');

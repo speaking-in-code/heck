@@ -1,10 +1,10 @@
 import 'package:emulators/src/command.dart';
 
 class RunningEmulator {
-  final String name;
+  final String id;
   final RunningCommand command;
 
-  RunningEmulator(this.name, this.command);
+  RunningEmulator(this.id, this.command);
 
   Future<void> waitForReady() async {}
 }
