@@ -1,18 +1,17 @@
 import 'dart:io';
 
 import 'package:built_collection/built_collection.dart';
-import 'package:emulators/emulators.dart';
 import 'package:emulators/src/adb.dart';
 import 'package:emulators/src/avdmanager.dart';
 import 'package:emulators/src/command.dart';
 import 'package:emulators/src/device.dart';
 import 'package:emulators/src/emulator.dart';
+import 'package:emulators/src/emulator_exception.dart';
 import 'package:emulators/src/running_emulator.dart';
 import 'package:emulators/src/sdk_config.dart';
-
-import 'flutter.dart';
-import 'models/flutter_devices.dart';
-import 'models/system_image.dart';
+import 'package:emulators/src/flutter.dart';
+import 'package:emulators/src/models/flutter_devices.dart';
+import 'package:emulators/src/models/system_image.dart';
 
 // TODO: change these apis to use built_value/built_collection objects
 // where that makes sense.
@@ -116,5 +115,15 @@ class Emulators {
       final out = emulator.command.process.kill(ProcessSignal.sigkill);
       print('Kill response: $out');
     }
+  }
+
+  Future<CommandResult> testOnDevice(
+      {required String deviceId,
+      required String? workingDirectory,
+      required Iterable<String> options}) async {
+    return Flutter.testOnDevice(_sdkConfig,
+        deviceId: deviceId,
+        workingDirectory: workingDirectory,
+        options: options);
   }
 }

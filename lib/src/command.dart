@@ -7,13 +7,18 @@ import 'package:emulators/emulators.dart';
 
 class Command {
   final String executable;
+  final String? workingDirectory;
   final List<String> arguments;
 
-  Command(this.executable, this.arguments);
+  Command(this.executable, this.arguments, {this.workingDirectory});
 
   @override
   String toString() {
-    String out = executable;
+    String out = '';
+    if (workingDirectory != null) {
+      out += 'dir=$workingDirectory, ';
+    }
+    out += executable;
     if (arguments.isNotEmpty) {
       out += ' ';
       out += arguments.join(' ');
@@ -24,7 +29,8 @@ class Command {
   // TODO: add a timeout here.
   CommandResult runSync() {
     try {
-      final result = Process.runSync(executable, arguments);
+      final result = Process.runSync(executable, arguments,
+          workingDirectory: workingDirectory);
       return CommandResult(
           command: this,
           stdout: result.stdout,

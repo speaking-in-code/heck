@@ -20,6 +20,7 @@ void main() async {
       // await emulators.deleteDevice(name);
     });
 
+    /*
     test('Creates and starts device', () async {
       final skinsF = emulators.listSkins();
       final imagesF = emulators.listSystemImages();
@@ -33,6 +34,9 @@ void main() async {
       await emulators.waitForEmulator(running);
       print('Emulator started');
       print('Device id is "${running.id}"');
+      final out = emulators.testOnDevice(running.id,
+          ['test', './example/emulators_demo/integration_test/app_test.dart']);
+      print('Test results from ${running.id}: $out');
       //await emulators.stopEmulator(running);
       // running.command.process.kill();
       //await running.command.process.exitCode;
@@ -47,6 +51,19 @@ void main() async {
       // Next up:
       // - wait for the device to be available
       // - run an integration test inside it
+    });
+*/
+    test('runs tests on device', () async {
+      final id = 'emulator-5554';
+      final out = await emulators.testOnDevice(
+          deviceId: id,
+          workingDirectory: 'example/emulators_demo',
+          options: ['integration_test/app_test.dart']);
+      if (out.exitCode != 0) {
+        fail('Tests failed on $id: $out');
+      } else {
+        print('Test results from $id: $out');
+      }
     });
   }, timeout: timeout);
 }
