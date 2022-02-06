@@ -46,4 +46,11 @@ class AVDManager {
           'Unexpected output for creating new device: $result');
     }
   }
+
+  static Future<void> deleteDevice(Command command) async {
+    final result = command.runSync();
+    if (result.exitCode != 0) {
+      throw EmulatorException('Unexpected output for deleting device: $result');
+    }
+  }
 }
