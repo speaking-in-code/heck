@@ -117,11 +117,11 @@ class Emulators {
     }
   }
 
-  Future<CommandResult> testOnDevice(
+  Future<CommandResult> flutterDrive(
       {required String deviceId,
       required String? workingDirectory,
       required Iterable<String> options}) async {
-    return Flutter.testOnDevice(_sdkConfig,
+    return Flutter.flutterDrive(_sdkConfig,
         deviceId: deviceId,
         workingDirectory: workingDirectory,
         options: options);

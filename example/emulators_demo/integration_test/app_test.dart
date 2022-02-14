@@ -1,9 +1,15 @@
+import 'dart:io';
+
+import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/_callback_io.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:native_screenshot/native_screenshot.dart';
 
 import 'package:emulators_demo/main.dart' as app;
 
 void main() {
+  final testBinding = IntegrationTestWidgetsFlutterBinding();
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('end-to-end test', () {
@@ -26,6 +32,28 @@ void main() {
 
       // Verify the counter increments by 1.
       expect(find.text('1'), findsOneWidget);
+
+      String? path = await NativeScreenshot.takeScreenshot();
+      print('Faking a screenshot, path is $path');
+      final Map<String, dynamic> data = {
+        'screenshotName': 'BEE',
+        'bytes': File(path!).readAsBytesSync(),
+      };
+      assert(data.containsKey('bytes'));
+      testBinding.reportData ??= <String, dynamic>{};
+      testBinding.reportData!['screenshots'] ??= <dynamic>[];
+      (testBinding.reportData!['screenshots']! as List<dynamic>).add(data);
+
+      /*
+
+      testBinding.takeScreenshot("BEE");
+      print('Converting surface to image');
+      await testBinding.convertFlutterSurfaceToImage();
+      print('Taking screenshot');
+      await testBinding.takeScreenshot('BEE');
+      print('Test complete');
+
+        */
     });
   });
 }

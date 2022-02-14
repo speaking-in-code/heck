@@ -4,6 +4,7 @@ import 'package:emulators/emulators.dart';
 import 'package:emulators/src/models/system_image.dart';
 import 'package:test/test.dart';
 
+// TODO: this should probably be in the example app, not the library code.
 void main() async {
   final timeout = Timeout(Duration(minutes: 2));
 
@@ -55,10 +56,15 @@ void main() async {
 */
     test('runs tests on device', () async {
       final id = 'emulator-5554';
-      final out = await emulators.testOnDevice(
+      final out = await emulators.flutterDrive(
           deviceId: id,
           workingDirectory: 'example/emulators_demo',
-          options: ['integration_test/app_test.dart']);
+          options: [
+            '--driver',
+            'test_driver/app.dart',
+            '--target',
+            'integration_test/app_test.dart'
+          ]);
       if (out.exitCode != 0) {
         fail('Tests failed on $id: $out');
       } else {

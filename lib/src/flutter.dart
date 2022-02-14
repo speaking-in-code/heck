@@ -38,15 +38,24 @@ class Flutter {
     }
   }
 
-  // Run the flutter test command on the specified device
-  static Future<CommandResult> testOnDevice(SDKConfig config,
+  // Run the flutter drive command on the specified device
+  static Future<CommandResult> flutterDrive(SDKConfig config,
       {required String deviceId,
       required String? workingDirectory,
       required Iterable<String> options}) async {
-    final args = <String>['-d', deviceId, 'test'];
+    final args = <String>['-d', deviceId, 'drive'];
     args.addAll(options);
-    final command =
-        Command(config.flutter!, args, workingDirectory: workingDirectory);
-    return command.runSync();
+    final command = Command(
+      config.flutter!,
+      args,
+      workingDirectory: workingDirectory,
+    );
+    final running = await command.runBackground(streamOutput: true);
+    await running.process.exitCode;
+    return CommandResult(
+        command: command,
+        exitCode: running.exitCode!,
+        stdout: running.stdout,
+        stderr: running.stderr);
   }
 }

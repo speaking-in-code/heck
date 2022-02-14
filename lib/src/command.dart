@@ -1,7 +1,7 @@
 /// A wrapper for dart:io Process that adds some additional functionality.
 ///
 
-import 'dart:io';
+import 'dart:io' as io;
 
 import 'package:emulators/emulators.dart';
 
@@ -29,24 +29,25 @@ class Command {
   // TODO: add a timeout here.
   CommandResult runSync() {
     try {
-      final result = Process.runSync(executable, arguments,
+      final result = io.Process.runSync(executable, arguments,
           workingDirectory: workingDirectory);
       return CommandResult(
           command: this,
           stdout: result.stdout,
           stderr: result.stderr,
           exitCode: result.exitCode);
-    } on ProcessException catch (e) {
+    } on io.ProcessException catch (e) {
       return CommandResult(
           command: this, exitCode: -1, stdout: '', stderr: '', exception: e);
     }
   }
 
-  Future<RunningCommand> runBackground() async {
+  Future<RunningCommand> runBackground({bool streamOutput: false}) async {
     try {
-      final process = await Process.start(executable, arguments);
-      return RunningCommand(this, process);
-    } on ProcessException catch (e) {
+      final process = await io.Process.start(executable, arguments,
+          workingDirectory: workingDirectory);
+      return RunningCommand(this, process, streamOutput: streamOutput);
+    } on io.ProcessException catch (e) {
       throw EmulatorException('Failed to start $this', e);
     }
   }
@@ -57,7 +58,7 @@ class CommandResult {
   final int exitCode;
   final String stdout;
   final String stderr;
-  final ProcessException? exception;
+  final io.ProcessException? exception;
 
   CommandResult(
       {required this.command,
@@ -81,22 +82,29 @@ class CommandResult {
 // of stdout and stderr from the running process in memory. Maybe think through
 // a better logging system.
 class RunningCommand {
-  static const _encoding = SystemEncoding();
+  static const _encoding = io.SystemEncoding();
   final Command command;
-  final Process process;
+  final io.Process process;
+  final bool streamOutput;
   String stdout = '';
   String stderr = '';
   int? exitCode;
   bool get running => (exitCode == null);
 
-  RunningCommand(this.command, this.process) {
+  RunningCommand(this.command, this.process, {this.streamOutput = false}) {
     process.exitCode.then((code) {
       exitCode = code;
     });
     process.stdout.transform(_encoding.decoder).forEach((String out) {
+      if (streamOutput) {
+        io.stdout.write(out);
+      }
       stdout += out;
     });
     process.stderr.transform(_encoding.decoder).forEach((String out) {
+      if (streamOutput) {
+        io.stderr.write(out);
+      }
       stderr += out;
     });
   }
