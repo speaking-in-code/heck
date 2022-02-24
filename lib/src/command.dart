@@ -42,7 +42,7 @@ class Command {
     }
   }
 
-  Future<RunningCommand> runBackground({bool streamOutput: false}) async {
+  Future<RunningCommand> runBackground({bool streamOutput = false}) async {
     try {
       final process = await io.Process.start(executable, arguments,
           workingDirectory: workingDirectory);

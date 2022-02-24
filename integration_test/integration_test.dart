@@ -48,12 +48,9 @@ void main() async {
       print('Stderr was ${running.command.stderr}');
 
        */
-
-      // Next up:
-      // - wait for the device to be available
-      // - run an integration test inside it
     });
 */
+    /*
     test('runs tests on device', () async {
       final id = 'emulator-5554';
       final out = await emulators.flutterDrive(
@@ -70,6 +67,16 @@ void main() async {
       } else {
         print('Test results from $id: $out');
       }
+    });
+     */
+
+    test('Starts device in locale', () async {
+      final running =
+          await emulators.startDevice('int_test_706', locale: 'fr_FR');
+      print('Waiting for emulator ${running.id} to startup');
+      await emulators.waitForEmulator(running);
+      print('Emulator started');
+      print('Device id is "${running.id}"');
     });
   }, timeout: timeout);
 }

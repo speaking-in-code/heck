@@ -4,6 +4,7 @@ import 'package:emulators/src/running_emulator.dart';
 import 'package:emulators/src/sdk_config.dart';
 
 import 'command.dart';
+import 'emulator_exception.dart';
 
 class Emulator {
   // Android qemu emulation uses even numbered ports in this range for
@@ -28,12 +29,15 @@ class Emulator {
     return _minPort;
   }
 
-  static Future<RunningEmulator> startDevice(
-      SDKConfig sdkConfig, String name) async {
+  static Future<RunningEmulator> startDevice(SDKConfig sdkConfig, String name,
+      {String locale = ''}) async {
     final port = await _findOpenPort();
-    final command =
-        Command(sdkConfig.emulator!, ['-avd', name, '-port', '$port']);
-    final running = await command.runBackground();
+    final args = ['-avd', name, '-port', '$port', '-no-snapshot-save'];
+    if (locale.isNotEmpty) {
+      args.addAll(['-change-locale', locale]);
+    }
+    final command = Command(sdkConfig.emulator!, args);
+    final running = await command.runBackground(streamOutput: true);
     return RunningEmulator('emulator-$port', running);
   }
 }

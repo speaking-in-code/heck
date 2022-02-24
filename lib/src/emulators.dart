@@ -59,8 +59,8 @@ class Emulators {
     return AVDManager.deleteDevice(command);
   }
 
-  Future<RunningEmulator> startDevice(String name) {
-    return Emulator.startDevice(_sdkConfig, name);
+  Future<RunningEmulator> startDevice(String name, {String locale = ''}) {
+    return Emulator.startDevice(_sdkConfig, name, locale: locale);
   }
 
   Future<FlutterDevices> listConnected() async {
