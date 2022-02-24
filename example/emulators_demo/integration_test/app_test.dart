@@ -33,27 +33,19 @@ void main() {
       // Verify the counter increments by 1.
       expect(find.text('1'), findsOneWidget);
 
-      String? path = await NativeScreenshot.takeScreenshot();
-      print('Faking a screenshot, path is $path');
+      List<int>? bytes = await NativeScreenshot.takeScreenshotImage();
+      if (bytes == null) {
+        fail('No bytes returned');
+      }
+      print('Faking a screenshot, got bytes: ${bytes.length}');
       final Map<String, dynamic> data = {
         'screenshotName': 'BEE',
-        'bytes': File(path!).readAsBytesSync(),
+        'bytes': bytes
       };
       assert(data.containsKey('bytes'));
       testBinding.reportData ??= <String, dynamic>{};
       testBinding.reportData!['screenshots'] ??= <dynamic>[];
       (testBinding.reportData!['screenshots']! as List<dynamic>).add(data);
-
-      /*
-
-      testBinding.takeScreenshot("BEE");
-      print('Converting surface to image');
-      await testBinding.convertFlutterSurfaceToImage();
-      print('Taking screenshot');
-      await testBinding.takeScreenshot('BEE');
-      print('Test complete');
-
-        */
     });
   });
 }
