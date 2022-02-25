@@ -11,12 +11,19 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Heck: Helpful Emulator Construction Kit
+
+The Helpful Emulator Construction Kit automates management of iOS and Android emulators.
+
+
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+Heck provides a consistent interface for tasks like:
+
+* creating a new virtual iOS or Android device using particular form factors or OS versions.
+* booting a device (including switching the device locale).
+* deleting devices when they are no longer necessary.
 
 ## Getting started
 
