@@ -1,24 +1,24 @@
 import 'dart:io';
 
 import 'package:built_collection/built_collection.dart';
-import 'package:emulators/src/adb.dart';
-import 'package:emulators/src/avdmanager.dart';
-import 'package:emulators/src/command.dart';
-import 'package:emulators/src/device.dart';
-import 'package:emulators/src/emulator.dart';
-import 'package:emulators/src/emulator_exception.dart';
-import 'package:emulators/src/running_emulator.dart';
-import 'package:emulators/src/sdk_config.dart';
-import 'package:emulators/src/flutter.dart';
-import 'package:emulators/src/models/flutter_devices.dart';
-import 'package:emulators/src/models/system_image.dart';
+import 'internal/adb.dart';
+import 'internal/avdmanager.dart';
+import 'internal/command.dart';
+import 'internal/device.dart';
+import 'internal/emulator.dart';
+import 'heck_exception.dart';
+import 'internal/running_emulator.dart';
+import 'sdk_config.dart';
+import 'internal/flutter.dart';
+import 'internal/models/flutter_devices.dart';
+import 'internal/models/system_image.dart';
 
 // TODO: change these apis to use built_value/built_collection objects
 // where that makes sense.
-class Emulators {
+class Heck {
   final SDKConfig _sdkConfig;
 
-  Emulators(this._sdkConfig);
+  Heck(this._sdkConfig);
 
   Future<List<RunningDevice>> listRunning() async {
     final command = Command(_sdkConfig.adb!, ['devices']);
@@ -60,7 +60,7 @@ class Emulators {
   }
 
   Future<RunningEmulator> startDevice(String name, {String locale = ''}) {
-    return Emulator.startDevice(_sdkConfig, name, locale: locale);
+    return Heck.startDevice(_sdkConfig, name, locale: locale);
   }
 
   Future<FlutterDevices> listConnected() async {
@@ -80,7 +80,7 @@ class Emulators {
       }
       await Future.delayed(const Duration(seconds: 1));
     }
-    throw EmulatorException('Timed out before $name was ready');
+    throw HeckException('Timed out before $name was ready');
   }
 
   Future<void> waitForEmulator(RunningEmulator emulator,
@@ -89,7 +89,7 @@ class Emulators {
     FlutterDevices? devices;
     while (DateTime.now().isBefore(stop)) {
       if (emulator.command.exitCode != null) {
-        throw EmulatorException('Emulator stopped: ${emulator.command}');
+        throw HeckException('Emulator stopped: ${emulator.command}');
       }
       devices = await listConnected();
       for (final device in devices.devices) {
@@ -99,7 +99,7 @@ class Emulators {
       }
       await Future.delayed(const Duration(seconds: 1));
     }
-    throw EmulatorException(
+    throw HeckException(
         'Timed out before ${emulator.id} was ready. Available devices: $devices');
   }
 
