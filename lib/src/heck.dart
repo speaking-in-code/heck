@@ -1,25 +1,36 @@
 import 'dart:io';
 
-import 'package:built_collection/built_collection.dart';
-import 'internal/adb.dart';
-import 'internal/avdmanager.dart';
+import 'heck_sdk_config.dart';
+import 'models/simulators.dart';
+import 'internal/get_simulators.dart';
+
+/*
+//import 'package:built_collection/built_collection.dart';
+//import 'internal/adb.dart';
+//import 'internal/avdmanager.dart';
 import 'internal/command.dart';
-import 'internal/device.dart';
-import 'internal/emulator.dart';
+//import 'internal/device.dart';
+//import 'internal/emulator.dart';
 import 'heck_exception.dart';
 import 'internal/running_emulator.dart';
-import 'sdk_config.dart';
 import 'internal/flutter.dart';
 import 'internal/models/flutter_devices.dart';
-import 'internal/models/system_image.dart';
+//import 'internal/models/system_image.dart';
+
+ */
 
 // TODO: change these apis to use built_value/built_collection objects
 // where that makes sense.
 class Heck {
-  final SDKConfig _sdkConfig;
+  final HeckSDKConfig _sdkConfig;
 
   Heck(this._sdkConfig);
 
+  Future<Simulators> getSimulators() async {
+    return GetSimulators(_sdkConfig).getSimulators();
+  }
+
+  /*
   Future<List<RunningDevice>> listRunning() async {
     final command = Command(_sdkConfig.adb!, ['devices']);
     return ADB.listRunning(command);
@@ -83,6 +94,9 @@ class Heck {
     throw HeckException('Timed out before $name was ready');
   }
 
+   */
+  /*
+
   Future<void> waitForEmulator(RunningEmulator emulator,
       {timeout = const Duration(minutes: 1)}) async {
     final stop = DateTime.now().add(timeout);
@@ -126,4 +140,6 @@ class Heck {
         workingDirectory: workingDirectory,
         options: options);
   }
+
+   */
 }

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:emulators/src/running_emulator.dart';
-import 'package:emulators/src/sdk_config.dart';
+import 'package:emulators/src/heck_sdk_config.dart';
 
 import 'command.dart';
 import 'emulator_exception.dart';

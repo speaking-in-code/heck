@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
-import 'package:emulators/src/sdk_config.dart';
+import 'package:emulators/src/heck_sdk_config.dart';
 
 import 'command.dart';
 import 'emulator_exception.dart';

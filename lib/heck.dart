@@ -4,5 +4,5 @@
 library heck;
 
 export 'src/heck_exception.dart';
-export 'src/sdk_config.dart';
+export 'src/heck_sdk_config.dart';
 export 'src/heck.dart';

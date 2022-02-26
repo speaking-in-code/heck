@@ -2,6 +2,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
 import 'flutter_devices.dart';
+import 'simctl_list.dart';
 import 'skin.dart';
 import 'system_image.dart';
 
@@ -18,6 +19,6 @@ part 'serializers.g.dart';
 /// types needed transitively via fields.
 ///
 /// You usually only need to do this once per project.
-@SerializersFor([FlutterDevices])
+@SerializersFor([FlutterDevices, SimctlList])
 final Serializers serializers =
     (_$serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();

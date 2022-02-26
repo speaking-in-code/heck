@@ -3,7 +3,7 @@
 
 import 'dart:io' as io;
 
-import 'package:emulators/emulators.dart';
+import 'package:heck/heck.dart';
 
 class Command {
   final String executable;
@@ -26,10 +26,9 @@ class Command {
     return out;
   }
 
-  // TODO: add a timeout here.
-  CommandResult runSync() {
+  Future<CommandResult> run() async {
     try {
-      final result = io.Process.runSync(executable, arguments,
+      final result = await io.Process.run(executable, arguments,
           workingDirectory: workingDirectory);
       return CommandResult(
           command: this,
@@ -48,7 +47,7 @@ class Command {
           workingDirectory: workingDirectory);
       return RunningCommand(this, process, streamOutput: streamOutput);
     } on io.ProcessException catch (e) {
-      throw EmulatorException('Failed to start $this', e);
+      throw HeckException('Failed to start $this', e);
     }
   }
 }

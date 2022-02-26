@@ -2,7 +2,7 @@
 ///
 /// This class shows where to find key tools for emulator management.
 /// Usage:
-///    final sdkConfig = await SDKConfig.loadDefaults();
+///    final sdkConfig = await HeckSDKConfig.loadDefaults();
 ///
 /// The SDKConfig.load() factory can be used if you need to specify specific
 /// paths to certain tools.
@@ -14,17 +14,28 @@ import 'package:path/path.dart' as path;
 import 'internal/command.dart';
 import 'heck_exception.dart';
 
-class SDKConfig {
+class HeckSDKConfig {
+  /// Path to flutter SDK flutter binary.
   final String? flutter;
+
+  /// Path to Android SDK avdmanager binary.
   final String? avdmanager;
+
+  /// Path to Android SDK emulator binary.
   final String? emulator;
+
+  /// Path to Android SDK adb binary.
   final String? adb;
+
+  /// Path to iOS SDK xcrun binary.
   final String? xcrun;
+
+  /// Path to iOS SDK plutil binary.
   final String? plutil;
 
   /// Load Android and iOS SDK configuration assuming normal defaults and tools
   /// in the path.
-  static Future<SDKConfig> loadDefaults() async {
+  static Future<HeckSDKConfig> loadDefaults() async {
     // We use ADB as a reference point, because it's version output includes
     // the full installation path. We then find absolute paths for the other
     // tools that require them.
@@ -52,7 +63,7 @@ class SDKConfig {
   }
 
   /// Loads SDK conjfigurat
-  static Future<SDKConfig> load(
+  static Future<HeckSDKConfig> load(
       {String? flutter,
       String? avdmanager,
       String? emulator,
@@ -82,11 +93,17 @@ class SDKConfig {
       }
       await Future.wait(checks);
     }
-    return SDKConfig._internal(
-        flutter: flutter, avdmanager: avdmanager, emulator: emulator, adb: adb);
+    return HeckSDKConfig._internal(
+      flutter: flutter,
+      avdmanager: avdmanager,
+      emulator: emulator,
+      adb: adb,
+      plutil: plutil,
+      xcrun: xcrun,
+    );
   }
 
-  SDKConfig._internal(
+  HeckSDKConfig._internal(
       {this.flutter,
       this.avdmanager,
       this.emulator,
@@ -98,7 +115,7 @@ class SDKConfig {
 
   static Future<void> _checkFlutter(String path) async {
     final command = Command(path, ['--version']);
-    final result = command.runSync();
+    final result = await command.run();
     if (result.exitCode != 0) {
       throw HeckException('Bad exit code from $command');
     }
@@ -111,7 +128,7 @@ class SDKConfig {
 
   static Future<void> _checkAvdmanager(String path) async {
     final command = Command(path, ['list', 'target']);
-    final result = command.runSync();
+    final result = await command.run();
     if (result.exitCode != 0) {
       throw HeckException('Bad exit code from "$command"');
     }
@@ -124,7 +141,7 @@ class SDKConfig {
 
   static Future<void> _checkEmulator(String path) async {
     final command = Command(path, []);
-    final result = command.runSync();
+    final result = await command.run();
     if (result.exitCode != 1) {
       throw HeckException('Bad exit code from "$command"');
     }
@@ -139,7 +156,7 @@ class SDKConfig {
   // Returns the absolute path to adb.
   static Future<String> _checkAdb(String path) async {
     final command = Command(path, ['--version']);
-    final result = command.runSync();
+    final result = await command.run();
     if (result.exitCode != 0) {
       throw HeckException('Bad exit code from "$command"');
     }
@@ -157,11 +174,11 @@ class SDKConfig {
 
   static Future<void> _checkPlutil(String path) async {
     final command = Command(path, []);
-    final result = command.runSync();
+    final result = await command.run();
     if (result.exitCode != 1) {
-      throw HeckException('Bad exit code from "$command"');
+      throw HeckException('Bad exit code from "$result"');
     }
-    if (!_expectedPlutil.hasMatch(result.stdout)) {
+    if (!_expectedPlutil.hasMatch(result.stderr)) {
       throw HeckException('Unexpected output from $result');
     }
   }
@@ -169,10 +186,10 @@ class SDKConfig {
   static final _expectedXcrun = RegExp(r'xcrun version \d+');
 
   static Future<void> _checkXcrun(String path) async {
-    final command = Command(path, []);
-    final result = command.runSync();
-    if (result.exitCode != 1) {
-      throw HeckException('Bad exit code from "$command"');
+    final command = Command(path, ['--version']);
+    final result = await command.run();
+    if (result.exitCode != 0) {
+      throw HeckException('Bad exit code from "$result"');
     }
     if (!_expectedXcrun.hasMatch(result.stdout)) {
       throw HeckException('Unexpected output from $result');
