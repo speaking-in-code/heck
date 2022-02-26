@@ -21,8 +21,17 @@ class GetSimulators {
     if (sdkConfig.avdmanager != null) {
       androidFormFactorsCmd =
           Command(sdkConfig.avdmanager!, ['list', 'device']).run();
-      androidRuntimesCmd =
-          Command(sdkConfig.avdmanager!, ['list', 'target']).run();
+      // This gets a helpful error with the list of valid system image paths.
+      // sdkmanager does not appear to have this easily available on the command
+      // line.
+      androidRuntimesCmd = Command(sdkConfig.avdmanager!, [
+        'create',
+        'avd',
+        '--name',
+        'unused',
+        '--package',
+        'unused',
+      ]).run();
       androidDevicesCmd = Command(sdkConfig.avdmanager!, ['list', 'avd']).run();
     }
 
@@ -64,11 +73,22 @@ class GetSimulators {
     return out.build();
   }
 
+  // Example lines that should match:
+  //   system-images;android-23;default;x86_64
+  //   system-images;android-23;android-tv;armeabi-v7a
+  // Things that should not:
+  //   Error: Package path is not valid. Valid system image paths are:
+  static final _runtimesOutput = RegExp(r'^system-images;[^ ]+');
+
   BuiltList<AndroidRuntime> parseAndroidRuntimes(CommandResult result) {
-    final runtimes = parseAVDOutput(result);
+    if (result.exitCode != 1) {
+      throw HeckException('Unable to parse android runtimes: $result');
+    }
     final out = ListBuilder<AndroidRuntime>();
-    for (final runtime in runtimes) {
-      out.add((AndroidRuntimeBuilder()..runtime = runtime).build());
+    for (final line in result.stderr.split('\n')) {
+      if (_runtimesOutput.hasMatch(line)) {
+        out.add((AndroidRuntimeBuilder()..runtime = line.trim()).build());
+      }
     }
     return out.build();
   }
@@ -112,22 +132,24 @@ class GetSimulators {
     try {
       final simctlList =
           serializers.fromJson(SimctlList.serializer, result.stdout);
+      if (simctlList == null) {
+        throw HeckException('Unable to parse simctl output: $result');
+      }
       final outFormFactors = ListBuilder<IOSFormFactor>();
-      for (final devicetype in simctlList!.devicetypes) {
+      for (final devicetype in simctlList.devicetypes) {
         outFormFactors.add(
             (IOSFormFactorBuilder()..formFactor = devicetype.name).build());
       }
       sims.iosFormFactors = outFormFactors.build();
 
       final outRuntimes = ListBuilder<IOSRuntime>();
-      for (final runtime in simctlList!.runtimes) {
-        outRuntimes
-            .add((IOSRuntimeBuilder()..version = runtime.version).build());
+      for (final runtime in simctlList.runtimes) {
+        outRuntimes.add(getIOSRuntime(runtime));
       }
       sims.iosRuntimes = outRuntimes.build();
 
       final outDevices = ListBuilder<IOSDevice>();
-      for (final device in simctlList!.devices.values) {
+      for (final device in simctlList.devices.values) {
         outDevices.add(getIOSDevice(device));
       }
       sims.iosDevices = outDevices.build();
@@ -143,6 +165,13 @@ class GetSimulators {
     return (IOSDeviceBuilder()
           ..name = dev.name
           ..dataPath = dev.dataPath)
+        .build();
+  }
+
+  IOSRuntime getIOSRuntime(SimctlRuntime runtime) {
+    return (IOSRuntimeBuilder()
+          ..version = runtime.version
+          ..identifier = runtime.identifier)
         .build();
   }
 }

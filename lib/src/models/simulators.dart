@@ -44,7 +44,10 @@ abstract class AndroidDevice
 }
 
 abstract class IOSRuntime implements Built<IOSRuntime, IOSRuntimeBuilder> {
+  // Version, e.g. 10.3.1
   String get version;
+  // Identifier e.g. com.apple.CoreSimulator.SimRuntime.iOS-10-3
+  String get identifier;
 
   IOSRuntime._();
   factory IOSRuntime([void Function(IOSRuntimeBuilder) updates]) = _$IOSRuntime;

@@ -28,9 +28,12 @@ void main() async {
       expect(
           sims.androidRuntimes,
           containsAll([
-            (AndroidRuntimeBuilder()..runtime = 'Google Inc.:Google APIs:23')
+            (AndroidRuntimeBuilder()
+                  ..runtime = 'system-images;android-21;google_apis;x86')
                 .build(),
-            (AndroidRuntimeBuilder()..runtime = 'android-25').build(),
+            (AndroidRuntimeBuilder()
+                  ..runtime = 'system-images;android-23;default;x86_64')
+                .build(),
           ]));
 
       expect(
@@ -52,7 +55,10 @@ void main() async {
       expect(
           sims.iosRuntimes,
           containsAll([
-            (IOSRuntimeBuilder()..version = '10.3.1').build(),
+            (IOSRuntimeBuilder()
+                  ..version = '10.3.1'
+                  ..identifier = 'com.apple.CoreSimulator.SimRuntime.iOS-10-3')
+                .build(),
           ]));
 
       final foundNames = <String>[];

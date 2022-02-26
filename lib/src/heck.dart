@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:heck/src/internal/create_device.dart';
+
 import 'heck_sdk_config.dart';
 import 'models/simulators.dart';
 import 'internal/get_simulators.dart';
@@ -19,15 +21,36 @@ import 'internal/models/flutter_devices.dart';
 
  */
 
-// TODO: change these apis to use built_value/built_collection objects
-// where that makes sense.
+/// Helpful Emulator Control Kit.
+/// Example usage:
+///    final heck = Heck(await HeckSDKConfig.loadDefaults());
+///    final sims = await heck.getSimulators();
 class Heck {
   final HeckSDKConfig _sdkConfig;
 
   Heck(this._sdkConfig);
 
+  /// Retrieve all of the available simulators. This includes
+  /// - possible form factors (e.g. Nexus 9, or iPhone 6)
+  /// - possible runtimes (e.g. Android 23, iOS 10.3.1)
+  /// - virtual devices (e.g. particular simulators that have already been
+  ///   created.
   Future<Simulators> getSimulators() async {
     return GetSimulators(_sdkConfig).getSimulators();
+  }
+
+  Future<String> createDevice(
+      {required HeckDeviceType deviceType,
+      required String name,
+      required String formFactor,
+      required String runtime,
+      int storageMegs = 0}) async {
+    return CreateDevice(_sdkConfig).createDevice(
+        deviceType: deviceType,
+        name: name,
+        formFactor: formFactor,
+        runtime: runtime,
+        storageMegs: storageMegs);
   }
 
   /*
@@ -142,4 +165,9 @@ class Heck {
   }
 
    */
+}
+
+enum HeckDeviceType {
+  ios,
+  android,
 }

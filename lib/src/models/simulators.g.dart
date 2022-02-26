@@ -413,12 +413,17 @@ class AndroidDeviceBuilder
 class _$IOSRuntime extends IOSRuntime {
   @override
   final String version;
+  @override
+  final String identifier;
 
   factory _$IOSRuntime([void Function(IOSRuntimeBuilder)? updates]) =>
       (new IOSRuntimeBuilder()..update(updates)).build();
 
-  _$IOSRuntime._({required this.version}) : super._() {
+  _$IOSRuntime._({required this.version, required this.identifier})
+      : super._() {
     BuiltValueNullFieldError.checkNotNull(version, 'IOSRuntime', 'version');
+    BuiltValueNullFieldError.checkNotNull(
+        identifier, 'IOSRuntime', 'identifier');
   }
 
   @override
@@ -431,17 +436,21 @@ class _$IOSRuntime extends IOSRuntime {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is IOSRuntime && version == other.version;
+    return other is IOSRuntime &&
+        version == other.version &&
+        identifier == other.identifier;
   }
 
   @override
   int get hashCode {
-    return $jf($jc(0, version.hashCode));
+    return $jf($jc($jc(0, version.hashCode), identifier.hashCode));
   }
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('IOSRuntime')..add('version', version))
+    return (newBuiltValueToStringHelper('IOSRuntime')
+          ..add('version', version)
+          ..add('identifier', identifier))
         .toString();
   }
 }
@@ -453,12 +462,17 @@ class IOSRuntimeBuilder implements Builder<IOSRuntime, IOSRuntimeBuilder> {
   String? get version => _$this._version;
   set version(String? version) => _$this._version = version;
 
+  String? _identifier;
+  String? get identifier => _$this._identifier;
+  set identifier(String? identifier) => _$this._identifier = identifier;
+
   IOSRuntimeBuilder();
 
   IOSRuntimeBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _version = $v.version;
+      _identifier = $v.identifier;
       _$v = null;
     }
     return this;
@@ -480,7 +494,9 @@ class IOSRuntimeBuilder implements Builder<IOSRuntime, IOSRuntimeBuilder> {
     final _$result = _$v ??
         new _$IOSRuntime._(
             version: BuiltValueNullFieldError.checkNotNull(
-                version, 'IOSRuntime', 'version'));
+                version, 'IOSRuntime', 'version'),
+            identifier: BuiltValueNullFieldError.checkNotNull(
+                identifier, 'IOSRuntime', 'identifier'));
     replace(_$result);
     return _$result;
   }
