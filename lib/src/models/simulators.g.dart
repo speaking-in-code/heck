@@ -586,13 +586,17 @@ class _$IOSDevice extends IOSDevice {
   final String name;
   @override
   final String dataPath;
+  @override
+  final String id;
 
   factory _$IOSDevice([void Function(IOSDeviceBuilder)? updates]) =>
       (new IOSDeviceBuilder()..update(updates)).build();
 
-  _$IOSDevice._({required this.name, required this.dataPath}) : super._() {
+  _$IOSDevice._({required this.name, required this.dataPath, required this.id})
+      : super._() {
     BuiltValueNullFieldError.checkNotNull(name, 'IOSDevice', 'name');
     BuiltValueNullFieldError.checkNotNull(dataPath, 'IOSDevice', 'dataPath');
+    BuiltValueNullFieldError.checkNotNull(id, 'IOSDevice', 'id');
   }
 
   @override
@@ -607,19 +611,21 @@ class _$IOSDevice extends IOSDevice {
     if (identical(other, this)) return true;
     return other is IOSDevice &&
         name == other.name &&
-        dataPath == other.dataPath;
+        dataPath == other.dataPath &&
+        id == other.id;
   }
 
   @override
   int get hashCode {
-    return $jf($jc($jc(0, name.hashCode), dataPath.hashCode));
+    return $jf($jc($jc($jc(0, name.hashCode), dataPath.hashCode), id.hashCode));
   }
 
   @override
   String toString() {
     return (newBuiltValueToStringHelper('IOSDevice')
           ..add('name', name)
-          ..add('dataPath', dataPath))
+          ..add('dataPath', dataPath)
+          ..add('id', id))
         .toString();
   }
 }
@@ -635,6 +641,10 @@ class IOSDeviceBuilder implements Builder<IOSDevice, IOSDeviceBuilder> {
   String? get dataPath => _$this._dataPath;
   set dataPath(String? dataPath) => _$this._dataPath = dataPath;
 
+  String? _id;
+  String? get id => _$this._id;
+  set id(String? id) => _$this._id = id;
+
   IOSDeviceBuilder();
 
   IOSDeviceBuilder get _$this {
@@ -642,6 +652,7 @@ class IOSDeviceBuilder implements Builder<IOSDevice, IOSDeviceBuilder> {
     if ($v != null) {
       _name = $v.name;
       _dataPath = $v.dataPath;
+      _id = $v.id;
       _$v = null;
     }
     return this;
@@ -665,7 +676,8 @@ class IOSDeviceBuilder implements Builder<IOSDevice, IOSDeviceBuilder> {
             name: BuiltValueNullFieldError.checkNotNull(
                 name, 'IOSDevice', 'name'),
             dataPath: BuiltValueNullFieldError.checkNotNull(
-                dataPath, 'IOSDevice', 'dataPath'));
+                dataPath, 'IOSDevice', 'dataPath'),
+            id: BuiltValueNullFieldError.checkNotNull(id, 'IOSDevice', 'id'));
     replace(_$result);
     return _$result;
   }

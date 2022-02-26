@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:heck/src/internal/create_device.dart';
-
-import 'heck_sdk_config.dart';
-import 'models/simulators.dart';
-import 'internal/get_simulators.dart';
+import 'package:heck/src/internal/delete_device.dart';
+import 'package:heck/src/heck_sdk_config.dart';
+import 'package:heck/src/models/simulators.dart';
+import 'package:heck/src/internal/get_simulators.dart';
 
 /*
 //import 'package:built_collection/built_collection.dart';
@@ -39,20 +39,40 @@ class Heck {
     return GetSimulators(_sdkConfig).getSimulators();
   }
 
-  Future<String> createDevice(
-      {required HeckDeviceType deviceType,
-      required String name,
-      required String formFactor,
-      required String runtime,
-      int storageMegs = 0}) async {
+  /// Create the specified device and return the device ID to use for future
+  /// commands involving the device.
+  ///
+  /// deviceType: type of device
+  /// name: a name for the device. For Android, existing devices with this name
+  ///   are replaced. For iOS, a new device with the same name is created.
+  /// formFactor: the type of the device to create.
+  /// runtime: the OS runtime for the device.
+  /// storageMegs: (Android only) MB of additional storage for the device.
+  Future<String> createDevice({
+    required HeckDeviceType deviceType,
+    required String name,
+    required String formFactor,
+    required String runtime,
+    int storageMegs = 0,
+  }) async {
     return CreateDevice(_sdkConfig).createDevice(
-        deviceType: deviceType,
-        name: name,
-        formFactor: formFactor,
-        runtime: runtime,
-        storageMegs: storageMegs);
+      deviceType: deviceType,
+      name: name,
+      formFactor: formFactor,
+      runtime: runtime,
+      storageMegs: storageMegs,
+    );
   }
 
+  Future<void> deleteDevice({
+    required HeckDeviceType deviceType,
+    required String name,
+  }) async {
+    return DeleteDevice(_sdkConfig).deleteDevice(
+      deviceType: deviceType,
+      name: name,
+    );
+  }
   /*
   Future<List<RunningDevice>> listRunning() async {
     final command = Command(_sdkConfig.adb!, ['devices']);

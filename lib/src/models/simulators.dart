@@ -65,6 +65,7 @@ abstract class IOSFormFactor
 abstract class IOSDevice implements Built<IOSDevice, IOSDeviceBuilder> {
   String get name;
   String get dataPath;
+  String get id;
 
   IOSDevice._();
   factory IOSDevice([void Function(IOSDeviceBuilder) updates]) = _$IOSDevice;

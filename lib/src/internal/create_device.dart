@@ -35,6 +35,8 @@ class CreateDevice {
     }
   }
 
+  static final _uuidPattern =
+      RegExp(r'^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$');
   Future<String> createIOS({
     required String name,
     required String formFactor,
@@ -51,7 +53,19 @@ class CreateDevice {
     if (result.exitCode != 0) {
       throw HeckException('Failed to create device: $result');
     }
-    return name;
+    // Example output format
+    // No runtime specified, using 'iOS 15.2 (15.2 - 19C51) - com.apple.CoreSimulator.SimRuntime.iOS-15-2'
+    // 17EABC99-CCCB-4BDF-937D-349F98F935D2
+    final outLines = result.stdout.split('\n');
+    if (outLines.isEmpty) {
+      throw HeckException('Could not find device ID: $result');
+    }
+    for (final uuid in outLines.reversed) {
+      if (_uuidPattern.hasMatch(uuid)) {
+        return uuid;
+      }
+    }
+    throw HeckException('No device ID found in output: $result');
   }
 
   Future<String> createAndroid({

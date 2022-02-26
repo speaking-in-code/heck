@@ -157,14 +157,15 @@ class GetSimulators {
       throw HeckException.fromError(
           'simctl list unexpected output: $result', e);
     } on FormatException catch (e) {
-      throw HeckException('simctrl list unexpected output: $result', e);
+      throw HeckException('simctl list unexpected output: $result', e);
     }
   }
 
   IOSDevice getIOSDevice(SimctlDevice dev) {
     return (IOSDeviceBuilder()
           ..name = dev.name
-          ..dataPath = dev.dataPath)
+          ..dataPath = dev.dataPath
+          ..id = dev.udid)
         .build();
   }
 
