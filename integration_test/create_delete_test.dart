@@ -106,5 +106,34 @@ void main() async {
         expect(e.toString(), contains('xcrun simctl'));
       }
     });
+
+    test('Deleting unknown iOS device', () async {
+      try {
+        await heck.deleteDevice(
+            deviceType: HeckDeviceType.ios, name: 'device_does_not_exist');
+        fail('Should have thrown');
+      } on HeckException catch (e) {
+        // Check that command is echoed in error message
+        expect(e.toString(),
+            contains('xcrun simctl delete device_does_not_exist'));
+        expect(e.toString(), contains('Invalid device: device_does_not_exist'));
+      }
+    });
+
+    test('Deleting unknown Android device', () async {
+      try {
+        await heck.deleteDevice(
+            deviceType: HeckDeviceType.android, name: 'device_does_not_exist');
+        fail('Should have thrown');
+      } on HeckException catch (e) {
+        // Check that command is echoed in error message
+        expect(e.toString(),
+            contains('avdmanager delete avd --name device_does_not_exist'));
+        expect(
+            e.toString(),
+            contains(
+                "There is no Android Virtual Device named 'device_does_not_exist'"));
+      }
+    });
   }, timeout: timeout);
 }
