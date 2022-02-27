@@ -64,6 +64,7 @@ class Heck {
     );
   }
 
+  /// Delete the specified device.
   Future<void> deleteDevice({
     required HeckDeviceType deviceType,
     required String name,
@@ -77,40 +78,6 @@ class Heck {
   Future<List<RunningDevice>> listRunning() async {
     final command = Command(_sdkConfig.adb!, ['devices']);
     return ADB.listRunning(command);
-  }
-
-  Future<BuiltList<SystemImage>> listSystemImages() async {
-    final command = Command(_sdkConfig.avdmanager!,
-        ['create', 'avd', '-k', 'no-such-image', '-n', 'unused-name']);
-    return AVDManager.listSystemImages(command);
-  }
-
-  Future<List<String>> listSkins() async {
-    final command = Command(_sdkConfig.avdmanager!, ['list', 'devices']);
-    return AVDManager.listSkins(command);
-  }
-
-  Future<void> createDevice(
-      {required String name,
-      required String skin,
-      required String image}) async {
-    final command = Command(_sdkConfig.avdmanager!, [
-      'create',
-      'avd',
-      '--package',
-      image,
-      '--device',
-      skin,
-      '--name',
-      name
-    ]);
-    return AVDManager.createDevice(command);
-  }
-
-  Future<void> deleteDevice(String name) async {
-    final command =
-        Command(_sdkConfig.avdmanager!, ['delete', 'avd', '--name', name]);
-    return AVDManager.deleteDevice(command);
   }
 
   Future<RunningEmulator> startDevice(String name, {String locale = ''}) {
