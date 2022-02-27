@@ -106,73 +106,8 @@ class Heck {
     return StartStopDevice(_sdkConfig)
         .stopDevice(device: device, timeout: timeout);
   }
+
   /*
-  Future<List<RunningDevice>> listRunning() async {
-    final command = Command(_sdkConfig.adb!, ['devices']);
-    return ADB.listRunning(command);
-  }
-
-  Future<RunningEmulator> startDevice(String name, {String locale = ''}) {
-    return Heck.startDevice(_sdkConfig, name, locale: locale);
-  }
-
-  Future<FlutterDevices> listConnected() async {
-    final command = Command(_sdkConfig.flutter!, ['devices', '--machine']);
-    return Flutter.devices(command);
-  }
-
-  Future<void> waitForDevice(String name,
-      {timeout = const Duration(minutes: 1)}) async {
-    final stop = DateTime.now().add(timeout);
-    while (DateTime.now().isBefore(stop)) {
-      final devices = await listConnected();
-      for (final device in devices.devices) {
-        if (device.name == name) {
-          return;
-        }
-      }
-      await Future.delayed(const Duration(seconds: 1));
-    }
-    throw HeckException('Timed out before $name was ready');
-  }
-
-   */
-  /*
-
-  Future<void> waitForEmulator(RunningEmulator emulator,
-      {timeout = const Duration(minutes: 1)}) async {
-    final stop = DateTime.now().add(timeout);
-    FlutterDevices? devices;
-    while (DateTime.now().isBefore(stop)) {
-      if (emulator.command.exitCode != null) {
-        throw HeckException('Emulator stopped: ${emulator.command}');
-      }
-      devices = await listConnected();
-      for (final device in devices.devices) {
-        if (device.id == emulator.id) {
-          return;
-        }
-      }
-      await Future.delayed(const Duration(seconds: 1));
-    }
-    throw HeckException(
-        'Timed out before ${emulator.id} was ready. Available devices: $devices');
-  }
-
-  Future<void> stopEmulator(RunningEmulator emulator,
-      {timeout = const Duration(seconds: 5)}) async {
-    final stop = DateTime.now().add(timeout);
-    emulator.command.process.kill(
-    while (emulator.command.exitCode == null && DateTime.now().isBefore(stop)) {
-      await Future.delayed(const Duration(seconds: 1));
-    }
-    if (emulator.command.exitCode == null) {
-      print('Killing with prejudice');
-      final out = emulator.command.process.kill(ProcessSignal.sigkill);
-      print('Kill response: $out');
-    }
-  }
-
   Future<CommandResult> flutterDrive(
       {required String deviceId,
       required String? workingDirectory,
@@ -182,7 +117,6 @@ class Heck {
         workingDirectory: workingDirectory,
         options: options);
   }
-
    */
 }
 
