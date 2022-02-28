@@ -95,6 +95,8 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(Localizations.localeOf(context).toString(),
+                key: const Key('locale')),
             const Text(
               'You have pushed the button this many times:',
             ),
