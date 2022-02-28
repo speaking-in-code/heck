@@ -3,8 +3,6 @@ import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
 import 'flutter_devices.dart';
 import 'simctl_list.dart';
-import 'skin.dart';
-import 'system_image.dart';
 
 part 'serializers.g.dart';
 

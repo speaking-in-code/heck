@@ -6,7 +6,7 @@ import 'package:heck/heck.dart';
 const kTestDevice = 'heck_test';
 
 void main() async {
-  final timeout = Timeout(Duration(seconds: 30));
+  final timeout = Timeout(Duration(minutes: 2));
 
   group('Creating and deleting simulators', () {
     late final Heck heck;

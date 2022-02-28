@@ -6,21 +6,6 @@ import 'package:heck/src/heck_sdk_config.dart';
 import 'package:heck/src/models/simulators.dart';
 import 'package:heck/src/internal/get_simulators.dart';
 
-/*
-//import 'package:built_collection/built_collection.dart';
-//import 'internal/adb.dart';
-//import 'internal/avdmanager.dart';
-import 'internal/command.dart';
-//import 'internal/device.dart';
-//import 'internal/emulator.dart';
-import 'heck_exception.dart';
-import 'internal/running_emulator.dart';
-import 'internal/flutter.dart';
-import 'internal/models/flutter_devices.dart';
-//import 'internal/models/system_image.dart';
-
- */
-
 /// Helpful Emulator Control Kit.
 /// Example usage:
 ///    final heck = Heck(await HeckSDKConfig.loadDefaults());
@@ -76,6 +61,7 @@ class Heck {
     );
   }
 
+  // Note: need to add some tests for locale settings here.
   /// Starts the specified device and wait for it to be ready.
   /// Arguments
   ///   deviceType: type of device

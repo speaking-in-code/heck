@@ -156,7 +156,6 @@ class StartStopDevice {
     while (DateTime.now().isBefore(stopTime) &&
         starting.command.exitCode == null) {
       final devices = await _listConnected();
-      print('Looking for ${starting.id}, found devices: $devices');
       for (final device in devices.devices) {
         if (device.id == starting.id) {
           return;
