@@ -14,7 +14,7 @@ void main() {
       final localeFinder = find.byKey(const Key('locale'));
       expect(localeFinder, findsOneWidget);
       final Text text = tester.firstWidget(localeFinder);
-      expect(text.data!, equals('es_ES'));
+      expect(text.data!, equalsIgnoringCase('Locale: es_es'));
     });
   });
 }

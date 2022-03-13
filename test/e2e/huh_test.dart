@@ -61,7 +61,7 @@ void main() async {
      */
 
     test('Drive Android', () async {
-      final spanish = await start(HeckDeviceType.android, 'es-ES');
+      final spanish = await start(HeckDeviceType.android, 'es_ES');
       final spanishOut = await flutterDrive(spanish, 'spanish_test.dart');
       expect(spanishOut.exitCode, equals(0));
     });

@@ -159,14 +159,18 @@ class StartStopDevice {
     //
     // We use an input locale of ll_RR. This maps it to
     // ll-rRR
-    final androidLocale = locale.replaceAll('_', '-');
+    //final androidLocale = locale.replaceAll('_', '-');
     try {
       workDir = await Directory.systemTemp.createTemp('heck');
       final apkPath = path.join(workDir.path, 'adb_change_language.apk');
       await File(apkPath).writeAsBytes(lang_change.apk, flush: true);
-      await Command(_sdkConfig.adb!, ['-s', device.id, 'install', apkPath])
-          .run();
-      await Command(_sdkConfig.adb!, [
+      final install =
+          await Command(_sdkConfig.adb!, ['-s', device.id, 'install', apkPath])
+              .run();
+      if (install.exitCode != 0) {
+        throw HeckException('Failed to install locale changer app: $install');
+      }
+      final perms = await Command(_sdkConfig.adb!, [
         '-s',
         device.id,
         'shell',
@@ -175,7 +179,10 @@ class StartStopDevice {
         'net.sanapeli.adbchangelanguage',
         'android.permission.CHANGE_CONFIGURATION'
       ]).run();
-      await Command(_sdkConfig.adb!, [
+      if (perms.exitCode != 0) {
+        throw HeckException('Failed to grant locale change permission: $perms');
+      }
+      final change = await Command(_sdkConfig.adb!, [
         '-s',
         device.id,
         'shell',
@@ -185,8 +192,14 @@ class StartStopDevice {
         'net.sanapeli.adbchangelanguage/.AdbChangeLanguage',
         '-e',
         'language',
-        androidLocale
+        locale
       ]).run();
+      print('Locale change: $change');
+      // I think the actual change is asynchronous, hard to know if this
+      // actually worked.
+      if (change.exitCode != 0) {
+        throw HeckException('Failed to change locale: $change');
+      }
     } finally {
       await workDir?.delete(recursive: true);
     }
