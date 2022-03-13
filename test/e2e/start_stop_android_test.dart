@@ -1,4 +1,3 @@
-import 'package:heck/src/models/simulators.dart';
 import 'package:test/test.dart';
 
 import 'package:heck/heck.dart';

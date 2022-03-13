@@ -10,6 +10,7 @@ import 'package:heck/src/models/simulators.dart';
 import 'command.dart';
 import 'models/flutter_devices.dart';
 import 'models/serializers.dart';
+import 'data/adb_change_language_apk.g.dart' as lang_change;
 
 class StartStopDevice {
   final HeckSDKConfig _sdkConfig;
@@ -117,14 +118,78 @@ class StartStopDevice {
   }) async {
     final port = await _findOpenPort();
     final args = ['-avd', name, '-port', '$port', '-no-snapshot-save'];
-    if (locale.isNotEmpty) {
-      args.addAll(['-change-locale', locale]);
-    }
     final command = Command(_sdkConfig.emulator!, args);
     final running = await command.runBackground(streamOutput: true);
     final device = HeckRunningDevice(id: 'emulator-$port', command: running);
     await _waitForReady(device, stopTime);
+    if (locale.isNotEmpty) {
+      await _changeAndroidLocale(device, locale);
+    }
     return device;
+  }
+
+  // Changing locales on Android is tricky. There are several options. In this
+  // code, we install an application that has permission to change locales. This
+  // works even on Google Play enabled devices, and seems backwards compatible
+  // with older versions of Android.
+  //
+  // We use this app:
+  // https://play.google.com/store/apps/details?id=net.sanapeli.adbchangelanguage&hl=en_US&gl=US
+  //
+  // It looks like rewriting that app from scratch would be pretty easy. To use
+  // a different app, run tools/embed-apk.dart.
+  //
+  // Other approaches that were tried and failed:
+  //
+  // adb: setprop persist.sys.locale
+  // Docs: https://developer.android.com/guide/topics/resources/localization#changing-the-emulator-locale-from-the-adb-shell
+  // This fails on google play enabled device, because it's not rooted.
+  //
+  // emulator: -change-locale flag
+  // Docs: https://androidstudio.googleblog.com/2019/06/emulator-2910-canary.html
+  // Also fails on google play enabled devices. Also in my testing it seems like
+  // the emulator sometimes completely ignores this flag, even if the device
+  // should be compatible.
+  Future<void> _changeAndroidLocale(
+      HeckRunningDevice device, String locale) async {
+    Directory? workDir;
+    // <sigh>. There is a lot going on in Android locale world. Sometimes the
+    // format is something like fr-FR, other times fr-rFR. This might need some
+    // work before it is reliable.
+    //
+    // We use an input locale of ll_RR. This maps it to
+    // ll-rRR
+    final androidLocale = locale.replaceAll('_', '-');
+    try {
+      workDir = await Directory.systemTemp.createTemp('heck');
+      final apkPath = path.join(workDir.path, 'adb_change_language.apk');
+      await File(apkPath).writeAsBytes(lang_change.apk, flush: true);
+      await Command(_sdkConfig.adb!, ['-s', device.id, 'install', apkPath])
+          .run();
+      await Command(_sdkConfig.adb!, [
+        '-s',
+        device.id,
+        'shell',
+        'pm',
+        'grant',
+        'net.sanapeli.adbchangelanguage',
+        'android.permission.CHANGE_CONFIGURATION'
+      ]).run();
+      await Command(_sdkConfig.adb!, [
+        '-s',
+        device.id,
+        'shell',
+        'am',
+        'start',
+        '-n',
+        'net.sanapeli.adbchangelanguage/.AdbChangeLanguage',
+        '-e',
+        'language',
+        androidLocale
+      ]).run();
+    } finally {
+      await workDir?.delete(recursive: true);
+    }
   }
 
   // Android qemu emulation uses even numbered ports in this range for

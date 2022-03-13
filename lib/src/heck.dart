@@ -6,6 +6,8 @@ import 'package:heck/src/heck_sdk_config.dart';
 import 'package:heck/src/models/simulators.dart';
 import 'package:heck/src/internal/get_simulators.dart';
 
+import 'internal/flutter_drive.dart';
+
 /// Helpful Emulator Control Kit.
 /// Example usage:
 ///    final heck = Heck(await HeckSDKConfig.loadDefaults());
@@ -93,17 +95,18 @@ class Heck {
         .stopDevice(device: device, timeout: timeout);
   }
 
-  /*
-  Future<CommandResult> flutterDrive(
-      {required String deviceId,
-      required String? workingDirectory,
-      required Iterable<String> options}) async {
-    return Flutter.flutterDrive(_sdkConfig,
+  /// Run the specified flutter drive command against the specified device.
+  /// TODO: CommandResult is maybe not the best output structure here.
+  Future<CommandResult> flutterDrive({
+    required String deviceId,
+    String? workingDirectory,
+    required Iterable<String> arguments,
+  }) async {
+    return FlutterDrive(_sdkConfig).drive(
         deviceId: deviceId,
         workingDirectory: workingDirectory,
-        options: options);
+        arguments: arguments);
   }
-   */
 }
 
 enum HeckDeviceType {
