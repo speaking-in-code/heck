@@ -105,8 +105,16 @@ class StartStopDevice {
     final running =
         await Command(_sdkConfig.xcrun!, ['simctl', 'boot', found.id])
             .runBackground(streamOutput: true);
-    final device = HeckRunningDevice(id: found.id, command: running);
+    final device = HeckRunningDevice(
+        platform: HeckDeviceType.ios, id: found.id, command: running);
     await _waitForReady(device, stopTime);
+    // Open the GUI too.
+    // Note that this has the unfortunate side-effect of booting a simulator.
+    // That can be changed from the preferences for Simulator, but it's less
+    // than helpful.
+    await Command(_sdkConfig.open!, [
+      _sdkConfig.simulator!,
+    ]).runBackground(streamOutput: true);
     return device;
   }
 
@@ -120,7 +128,10 @@ class StartStopDevice {
     final args = ['-avd', name, '-port', '$port', '-no-snapshot-save'];
     final command = Command(_sdkConfig.emulator!, args);
     final running = await command.runBackground(streamOutput: true);
-    final device = HeckRunningDevice(id: 'emulator-$port', command: running);
+    final device = HeckRunningDevice(
+        platform: HeckDeviceType.android,
+        id: 'emulator-$port',
+        command: running);
     await _waitForReady(device, stopTime);
     if (locale.isNotEmpty) {
       await _changeAndroidLocale(device, locale);
@@ -298,6 +309,19 @@ class StartStopDevice {
     required HeckRunningDevice device,
     required Duration timeout,
   }) async {
+    switch (device.platform) {
+      case HeckDeviceType.android:
+        return _stopAndroidDevice(device: device, timeout: timeout);
+      case HeckDeviceType.ios:
+        return _stopIOSDevice(device: device, timeout: timeout);
+    }
+  }
+
+  Future<void> _stopAndroidDevice({
+    required HeckRunningDevice device,
+    required Duration timeout,
+  }) async {
+    print('Trying to kill ${device.id}: ${device.command}');
     final cleanupTime = DateTime.now().add(timeout).subtract(_oneSecond);
     // Gentle termination signal, give the process time to exit.
     device.command.process.kill(ProcessSignal.sigterm);
@@ -311,6 +335,37 @@ class StartStopDevice {
       await Future.delayed(_oneSecond);
     }
     if (device.command.exitCode == null) {
+      throw HeckException('Failed to stop device: ${device.command}');
+    }
+  }
+
+  Future<bool> _deviceIsRunning(String id) async {
+    final devices = await _listConnected();
+    for (final device in devices.devices) {
+      if (device.id == id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<void> _stopIOSDevice({
+    required HeckRunningDevice device,
+    required Duration timeout,
+  }) async {
+    final stopping =
+        await Command(_sdkConfig.xcrun!, ['simctl', 'shutdown', device.id])
+            .run();
+    if (stopping.exitCode != 0) {
+      throw HeckException('Failed to stop ${device.id}: $stopping');
+    }
+    final stopTime = DateTime.now().add(timeout);
+    bool running = await _deviceIsRunning(device.id);
+    while (DateTime.now().isBefore(stopTime) && running) {
+      await Future.delayed(_oneSecond);
+      running = await _deviceIsRunning(device.id);
+    }
+    if (running) {
       throw HeckException('Failed to stop device: ${device.command}');
     }
   }

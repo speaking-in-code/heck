@@ -116,8 +116,10 @@ enum HeckDeviceType {
 
 // TODO: think through the public interface here. This is a lot.
 class HeckRunningDevice {
+  final HeckDeviceType platform;
   final String id;
   final RunningCommand command;
 
-  HeckRunningDevice({required this.id, required this.command});
+  HeckRunningDevice(
+      {required this.platform, required this.id, required this.command});
 }

@@ -33,6 +33,12 @@ class HeckSDKConfig {
   /// Path to iOS SDK plutil binary.
   final String? plutil;
 
+  /// Path to open command
+  final String? open;
+
+  /// Path to Simulator.app
+  final String? simulator;
+
   /// Load Android and iOS SDK configuration assuming normal defaults and tools
   /// in the path.
   static Future<HeckSDKConfig> loadDefaults() async {
@@ -47,9 +53,15 @@ class HeckSDKConfig {
     final emulator = path.join(sdk, 'tools', 'emulator');
     String? xcrun;
     String? plutil;
+    String? open;
+    String? simulator;
     if (Platform.isMacOS) {
       xcrun = 'xcrun';
       plutil = 'plutil';
+      open = 'open';
+      // TODO: use xcrun --show-sdk-path for this instead.
+      simulator =
+          '/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app';
     }
 
     return load(
@@ -59,6 +71,8 @@ class HeckSDKConfig {
       adb: adb,
       xcrun: xcrun,
       plutil: plutil,
+      open: open,
+      simulator: simulator,
     );
   }
 
@@ -70,6 +84,8 @@ class HeckSDKConfig {
       String? adb,
       String? xcrun,
       String? plutil,
+      String? open,
+      String? simulator,
       bool validate = true}) async {
     if (validate) {
       final List<Future<void>> checks = [];
@@ -91,6 +107,7 @@ class HeckSDKConfig {
       if (xcrun != null) {
         checks.add(_checkXcrun(xcrun));
       }
+      // TODO: add checks for simulator and open if they work at all.
       await Future.wait(checks);
     }
     return HeckSDKConfig._internal(
@@ -100,16 +117,21 @@ class HeckSDKConfig {
       adb: adb,
       plutil: plutil,
       xcrun: xcrun,
+      open: open,
+      simulator: simulator,
     );
   }
 
-  HeckSDKConfig._internal(
-      {this.flutter,
-      this.avdmanager,
-      this.emulator,
-      this.adb,
-      this.xcrun,
-      this.plutil});
+  HeckSDKConfig._internal({
+    this.flutter,
+    this.avdmanager,
+    this.emulator,
+    this.adb,
+    this.xcrun,
+    this.plutil,
+    this.open,
+    this.simulator,
+  });
 
   static final _expectedFlutter = RegExp(r'Flutter \d+\.\d+\.\d+ ');
 

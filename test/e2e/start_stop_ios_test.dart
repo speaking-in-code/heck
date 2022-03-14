@@ -32,6 +32,8 @@ void main() async {
         locale: 'fr_FR',
       );
       await heck.stopDevice(device: device);
+      // TODO: maybe add a new API to check if device is actually running.
+      // Doesn't exist at the moment, and bugs in stop code go undetected.
     });
 
     test('Start missing iOS simulator', () async {
