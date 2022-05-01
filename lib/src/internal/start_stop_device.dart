@@ -102,19 +102,24 @@ class StartStopDevice {
     if (locale.isNotEmpty) {
       await _setLocale(found, locale);
     }
-    final running =
-        await Command(_sdkConfig.xcrun!, ['simctl', 'boot', found.id])
-            .runBackground(streamOutput: true);
-    final device = HeckRunningDevice(
-        platform: HeckDeviceType.ios, id: found.id, command: running);
-    await _waitForReady(device, stopTime);
-    // Open the GUI too.
-    // Note that this has the unfortunate side-effect of booting a simulator.
+    // Open the GUI for Simulator, so that the user can see that it is actually
+    // running. Note that this has the unfortunate side-effect of booting a
+    // simulator by default.
+    //
     // That can be changed from the preferences for Simulator, but it's less
     // than helpful.
     await Command(_sdkConfig.open!, [
       _sdkConfig.simulator!,
     ]).runBackground(streamOutput: true);
+    // Try to stop the device if it's already running.
+    await Command(_sdkConfig.xcrun!, ['simctl', 'shutdown', found.id]).run();
+    // Now start it up.
+    final running =
+        await Command(_sdkConfig.xcrun!, ['simctl', 'boot', found.id])
+            .runBackground(streamOutput: true);
+    final device = HeckRunningDevice(
+        platform: HeckDeviceType.ios, id: found.id, command: running);
+    await _waitForPredicateOnDevice(device, stopTime, _flutterConnects);
     return device;
   }
 
@@ -132,7 +137,7 @@ class StartStopDevice {
         platform: HeckDeviceType.android,
         id: 'emulator-$port',
         command: running);
-    await _waitForReady(device, stopTime);
+    await _waitForAndroidReady(device, stopTime);
     if (locale.isNotEmpty) {
       await _changeAndroidLocale(device, locale);
     }
@@ -162,14 +167,14 @@ class StartStopDevice {
   // the emulator sometimes completely ignores this flag, even if the device
   // should be compatible.
   Future<void> _changeAndroidLocale(
-      HeckRunningDevice device, String locale) async {
+      HeckRunningDevice device, String inputLocale) async {
     Directory? workDir;
     // <sigh>. There is a lot going on in Android locale world. Sometimes the
     // format is something like fr-FR, other times fr-rFR. This might need some
     // work before it is reliable.
     //
     // We use an input locale of ll_CC. This maps it to ll-rCC
-    final androidLocale = locale.replaceAll('_', '-r');
+    final androidLocale = inputLocale.replaceAll('_', '-r');
     try {
       workDir = await Directory.systemTemp.createTemp('heck');
       final apkPath = path.join(workDir.path, 'adb_change_language.apk');
@@ -202,7 +207,7 @@ class StartStopDevice {
         'net.sanapeli.adbchangelanguage/.AdbChangeLanguage',
         '-e',
         'language',
-        locale
+        androidLocale,
       ]).run();
       // I think the actual change is asynchronous, hard to know if this
       // actually worked.
@@ -258,17 +263,17 @@ class StartStopDevice {
         'Timed out before ${starting.id} was ready: ${starting.command}');
   }
 
-  // Android devices are ready once ADB can connect and the Activity Manager
+  // Android devices are ready once flutter can connect and the Activity Manager
   // has started up and can respond to commands. Note that the home screen
   // might not have rendered yet!
-  Future<void> _waitForReady(
+  Future<void> _waitForAndroidReady(
       HeckRunningDevice starting, DateTime stopTime) async {
-    await _waitForPredicateOnDevice(starting, stopTime, _adbConnects);
+    await _waitForPredicateOnDevice(starting, stopTime, _flutterConnects);
     await _waitForPredicateOnDevice(
         starting, stopTime, _activityManagerRunning);
   }
 
-  Future<bool> _adbConnects(HeckRunningDevice starting) async {
+  Future<bool> _flutterConnects(HeckRunningDevice starting) async {
     final devices = await _listConnected();
     for (final device in devices.devices) {
       if (device.id == starting.id) {

@@ -7,11 +7,8 @@ import 'package:heck/heck.dart';
 
 const kTestDevice = 'heck_drive_test';
 
-// TODO: debugging. These tests are flaky. Add some things.
-// - verify that emulator stopped correctly (iOS)
-// - add exec open Simulator.app to launch the foreground iOS simulator
 void main() async {
-  final testTimeout = Timeout(Duration(minutes: 5));
+  final testTimeout = Timeout(Duration(minutes: 10));
 
   group('Running flutter drive against device in various locales', () {
     late final Heck heck;
@@ -24,6 +21,13 @@ void main() async {
    dart test test/e2e/flutter_drive_android_test.dart''');
       }
       heck = Heck(await HeckSDKConfig.loadDefaults());
+      // Delete the device if it already exists from a previous run.
+      try {
+        await heck.deleteDevice(
+            deviceType: HeckDeviceType.android, name: kTestDevice);
+      } on HeckException {
+        // ignore
+      }
       androidDevice = await heck.createDevice(
           deviceType: HeckDeviceType.android,
           name: kTestDevice,
@@ -51,38 +55,29 @@ void main() async {
       );
     }
 
-    test('Drive Android in Spanish', () async {
+    Future<void> _driveDevice(String locale, String test) async {
       HeckRunningDevice? device;
       try {
         device = await heck.startDevice(
           deviceType: HeckDeviceType.android,
           name: androidDevice,
-          locale: 'es_ES',
+          locale: locale,
         );
-        final spanishOut = await flutterDrive(device, 'spanish_test.dart');
-        expect(spanishOut.exitCode, equals(0));
+        final driveCommand = await flutterDrive(device, test);
+        expect(driveCommand.exitCode, equals(0));
       } finally {
         if (device != null) {
           await heck.stopDevice(device: device);
         }
       }
+    }
+
+    test('Drive Android in es_ES', () async {
+      await _driveDevice('es_ES', 'spanish_test.dart');
     });
 
-    test('Drive Android in French', () async {
-      HeckRunningDevice? device;
-      try {
-        device = await heck.startDevice(
-          deviceType: HeckDeviceType.android,
-          name: androidDevice,
-          locale: 'fr_FR',
-        );
-        final frenchOut = await flutterDrive(device, 'french_test.dart');
-        expect(frenchOut.exitCode, equals(0));
-      } finally {
-        if (device != null) {
-          await heck.stopDevice(device: device);
-        }
-      }
+    test('Drive Android in fr_FR', () async {
+      await _driveDevice('fr_FR', 'french_test.dart');
     });
   }, timeout: testTimeout);
 }
