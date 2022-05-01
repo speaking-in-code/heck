@@ -1,46 +1,36 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-Heck: Helpful Emulator Construction Kit
-
-The Helpful Emulator Construction Kit automates management of iOS and Android emulators.
-
-
+Heck is the Helpful Emulator Construction Kit. It automates management of
+iOS and Android emulators for use in flutter testing.
 
 ## Features
 
-Heck provides a consistent interface for tasks like:
+Heck provides APIs for tasks like:
 
-* creating a new virtual iOS or Android device using particular form factors or OS versions.
-* booting a device (including switching the device locale).
+* creating new virtual iOS and Android devices.
+* controlling device form factor and OS version.
+* switching device locales.
+* starting and stopping devices.
+* running flutter driver tests against devices.
 * deleting devices when they are no longer necessary.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+See the test/e2e directory for examples of how to use Heck.
 
-## Usage
+create\_delete\_test.dart shows how to create and delete emulators.
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+start\_stop\_android\_test.dart and start\_stop\_ios\_test.dart show how to
+start and stop emulators.
 
-```dart
-const like = 'sample';
-```
+flutter\_drive\_android\_test.dart and flutter\_drive\_ios\_test.dart contain
+complete examples: creating and starting emulators, running integration tests,
+and deleting the emulators afterwards.
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+Heck is beta software, built as part of a side-project. Bug reports and
+contributions are welcome, but no formal support is available.
+
+If you'd like to contribute code, the first step is to clone the repository
+and run "dart test test/e2e/\*.dart". That will make sure the code works
+properly on your machine. Once the basics are working, send pull requests or
+bug reports as neededs.

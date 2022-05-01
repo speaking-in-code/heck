@@ -59,9 +59,7 @@ class HeckSDKConfig {
       xcrun = 'xcrun';
       plutil = 'plutil';
       open = 'open';
-      // TODO: use xcrun --show-sdk-path for this instead.
-      simulator =
-          '/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app';
+      simulator = await _checkSimulator(xcrun);
     }
 
     return load(
@@ -216,5 +214,23 @@ class HeckSDKConfig {
     if (!_expectedXcrun.hasMatch(result.stdout)) {
       throw HeckException('Unexpected output from $result');
     }
+  }
+
+  static Future<String> _checkSimulator(String xcrun) async {
+    // This returns something like:
+    // /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform
+    // The simulator binary is in
+    // '/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app/Contents/MacOS/Simulator
+    final command = Command(xcrun, ['--show-sdk-platform-path']);
+    final result = await command.run();
+    if (result.exitCode != 0) {
+      throw HeckException('Bad exit code from "$result"');
+    }
+    final simulator = path.join(
+        result.stdout.trim(), '../../', 'Applications/Simulator.app/Contents/MacOS/Simulator');
+    if (!File(simulator).existsSync()) {
+      throw HeckException('Simulator not found at $simulator');
+    }
+    return simulator;
   }
 }

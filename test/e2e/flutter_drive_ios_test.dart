@@ -29,7 +29,7 @@ void main() async {
           deviceType: HeckDeviceType.ios,
           name: kTestDevice,
           formFactor: 'iPhone 11 Pro Max',
-          runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-15-2');
+          runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-15-4');
     });
 
     tearDownAll(() async {

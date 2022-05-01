@@ -25,15 +25,13 @@ void main() async {
           deviceType: HeckDeviceType.ios,
           name: kTestDevice,
           formFactor: 'iPhone 11 Pro Max',
-          runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-15-2');
+          runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-15-4');
       final device = await heck.startDevice(
         deviceType: HeckDeviceType.ios,
         name: name,
         locale: 'fr_FR',
       );
       await heck.stopDevice(device: device);
-      // TODO: maybe add a new API to check if device is actually running.
-      // Doesn't exist at the moment, and bugs in stop code go undetected.
     });
 
     test('Start missing iOS simulator', () async {

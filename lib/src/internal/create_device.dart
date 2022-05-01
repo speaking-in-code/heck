@@ -51,7 +51,11 @@ class CreateDevice {
     ]);
     final result = await command.run();
     if (result.exitCode != 0) {
-      throw HeckException('Failed to create device: $result');
+      String suggestion = '';
+      if (result.stderr.contains('Invalid runtime')) {
+        suggestion = "\nTry 'xcrun simctl list runtimes' to get a list of available runtimes.";
+      }
+      throw HeckException('Failed to create device: $result$suggestion');
     }
     // Example output format
     // No runtime specified, using 'iOS 15.2 (15.2 - 19C51) - com.apple.CoreSimulator.SimRuntime.iOS-15-2'

@@ -78,7 +78,7 @@ void main() async {
           deviceType: HeckDeviceType.ios,
           name: kTestDevice,
           formFactor: 'iPhone 11 Pro Max',
-          runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-15-2');
+          runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-15-4');
       expect(id, isNotEmpty);
       expect(id, isNot(equals(kTestDevice)));
       Iterable<IOSDevice> devices = await getIOSDevices();
@@ -98,7 +98,7 @@ void main() async {
             deviceType: HeckDeviceType.ios,
             name: kTestDevice,
             formFactor: 'not_found',
-            runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-15-2');
+            runtime: 'com.apple.CoreSimulator.SimRuntime.iOS-15-4');
         fail('Should have thrown');
       } on HeckException catch (e) {
         // Check that command is echoed in error message
