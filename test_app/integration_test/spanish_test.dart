@@ -13,8 +13,13 @@ void main() {
       await tester.pumpAndSettle();
       final localeFinder = find.byKey(const Key('locale'));
       expect(localeFinder, findsOneWidget);
-      final Text text = tester.firstWidget(localeFinder);
-      expect(text.data!, equalsIgnoringCase('Locale: es_es'));
+
+      final Text locale = tester.firstWidget(localeFinder);
+      expect(locale.data!, equalsIgnoringCase('Locale: es_es'));
+
+      final Text date = tester.firstWidget(find.byKey(const Key('date')));
+      expect(date.data!,
+          equalsIgnoringCase('Test date 2022-05-01: domingo, 1 de mayo'));
     });
   });
 }

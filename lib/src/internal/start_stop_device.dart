@@ -168,9 +168,8 @@ class StartStopDevice {
     // format is something like fr-FR, other times fr-rFR. This might need some
     // work before it is reliable.
     //
-    // We use an input locale of ll_RR. This maps it to
-    // ll-rRR
-    //final androidLocale = locale.replaceAll('_', '-');
+    // We use an input locale of ll_CC. This maps it to ll-rCC
+    final androidLocale = locale.replaceAll('_', '-r');
     try {
       workDir = await Directory.systemTemp.createTemp('heck');
       final apkPath = path.join(workDir.path, 'adb_change_language.apk');
@@ -205,7 +204,6 @@ class StartStopDevice {
         'language',
         locale
       ]).run();
-      print('Locale change: $change');
       // I think the actual change is asynchronous, hard to know if this
       // actually worked.
       if (change.exitCode != 0) {
@@ -240,15 +238,14 @@ class StartStopDevice {
 
   static const _cleanupTime = Duration(seconds: 10);
 
-  Future<void> _waitForReady(
-      HeckRunningDevice starting, DateTime stopTime) async {
+  Future<void> _waitForPredicateOnDevice(
+      HeckRunningDevice starting,
+      DateTime stopTime,
+      Future<bool> Function(HeckRunningDevice) predicate) async {
     while (DateTime.now().isBefore(stopTime) &&
         starting.command.exitCode == null) {
-      final devices = await _listConnected();
-      for (final device in devices.devices) {
-        if (device.id == starting.id) {
-          return;
-        }
+      if (await predicate(starting)) {
+        return;
       }
       await Future.delayed(const Duration(seconds: 1));
     }
@@ -259,6 +256,41 @@ class StartStopDevice {
     await _shutdown(starting);
     throw HeckException(
         'Timed out before ${starting.id} was ready: ${starting.command}');
+  }
+
+  // Android devices are ready once ADB can connect and the Activity Manager
+  // has started up and can respond to commands. Note that the home screen
+  // might not have rendered yet!
+  Future<void> _waitForReady(
+      HeckRunningDevice starting, DateTime stopTime) async {
+    await _waitForPredicateOnDevice(starting, stopTime, _adbConnects);
+    await _waitForPredicateOnDevice(
+        starting, stopTime, _activityManagerRunning);
+  }
+
+  Future<bool> _adbConnects(HeckRunningDevice starting) async {
+    final devices = await _listConnected();
+    for (final device in devices.devices) {
+      if (device.id == starting.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<bool> _activityManagerRunning(HeckRunningDevice device) async {
+    final maintenance = await Command(_sdkConfig.adb!, [
+      '-s',
+      device.id,
+      'shell',
+      'am',
+      'stack',
+      'list',
+    ]).run();
+    // Fails with an error message about not being able to connect to the
+    // activity manager, succeeds with stack id output. Error code seems to
+    // not contain any helpful information.
+    return maintenance.stdout.contains('Stack id=');
   }
 
   Future<void> _shutdown(HeckRunningDevice running) async {

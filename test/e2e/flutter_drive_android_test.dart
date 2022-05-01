@@ -8,11 +8,10 @@ import 'package:heck/heck.dart';
 const kTestDevice = 'heck_drive_test';
 
 // TODO: debugging. These tests are flaky. Add some things.
-// - verify output from the locale change commands (Android).
 // - verify that emulator stopped correctly (iOS)
 // - add exec open Simulator.app to launch the foreground iOS simulator
 void main() async {
-  final testTimeout = Timeout(Duration(minutes: 10));
+  final testTimeout = Timeout(Duration(minutes: 5));
 
   group('Running flutter drive against device in various locales', () {
     late final Heck heck;
@@ -52,24 +51,38 @@ void main() async {
       );
     }
 
-    test('Drive Android', () async {
-      final spanish = await heck.startDevice(
-        deviceType: HeckDeviceType.android,
-        name: androidDevice,
-        locale: 'es_ES',
-      );
-      final spanishOut = await flutterDrive(spanish, 'spanish_test.dart');
-      expect(spanishOut.exitCode, equals(0));
-      await heck.stopDevice(device: spanish);
+    test('Drive Android in Spanish', () async {
+      HeckRunningDevice? device;
+      try {
+        device = await heck.startDevice(
+          deviceType: HeckDeviceType.android,
+          name: androidDevice,
+          locale: 'es_ES',
+        );
+        final spanishOut = await flutterDrive(device, 'spanish_test.dart');
+        expect(spanishOut.exitCode, equals(0));
+      } finally {
+        if (device != null) {
+          await heck.stopDevice(device: device);
+        }
+      }
+    });
 
-      final french = await heck.startDevice(
-        deviceType: HeckDeviceType.android,
-        name: androidDevice,
-        locale: 'fr_FR',
-      );
-      final frenchOut = await flutterDrive(french, 'french_test.dart');
-      expect(frenchOut.exitCode, equals(0));
-      await heck.stopDevice(device: french);
+    test('Drive Android in French', () async {
+      HeckRunningDevice? device;
+      try {
+        device = await heck.startDevice(
+          deviceType: HeckDeviceType.android,
+          name: androidDevice,
+          locale: 'fr_FR',
+        );
+        final frenchOut = await flutterDrive(device, 'french_test.dart');
+        expect(frenchOut.exitCode, equals(0));
+      } finally {
+        if (device != null) {
+          await heck.stopDevice(device: device);
+        }
+      }
     });
   }, timeout: testTimeout);
 }

@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
-void main() {
+void main() async {
+  await initializeDateFormatting(Platform.localeName, null);
   runApp(const MyApp());
 }
 
@@ -65,6 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final formatter = DateFormat.MMMMEEEEd(Platform.localeName);
+    final date = formatter.format(DateTime(2022, 5, 1));
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -98,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text('Locale: ${Platform.localeName}', key: const Key('locale')),
+            Text('Test date 2022-05-01: $date', key: const Key('date')),
             const Text(
               'You have pushed the button this many times:',
             ),
