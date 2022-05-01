@@ -21,14 +21,20 @@ void main() async {
     });
 
     test('Start android simulator', () async {
-      String name = await heck.createDevice(
-          deviceType: HeckDeviceType.android,
-          name: kTestDevice,
-          formFactor: 'pixel_c',
+      HeckRunningDevice? device;
+      try {
+        String name = await heck.createDevice(
+            deviceType: HeckDeviceType.android,
+            name: kTestDevice,
+            formFactor: 'pixel_c',
           runtime: 'system-images;android-23;default;x86_64');
-      final device = await heck.startDevice(
-          deviceType: HeckDeviceType.android, name: name);
-      await heck.stopDevice(device: device);
+        device = await heck.startDevice(
+            deviceType: HeckDeviceType.android, name: name);
+      } finally {
+        if (device != null) {
+          await heck.stopDevice(device: device);
+        }
+      }
     });
   }, timeout: testTimeout);
 }
