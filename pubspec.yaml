@@ -1,7 +1,7 @@
 name: heck
 description: Helpful Emulator Construction Kit
 version: 0.0.1
-# homepage: https://www.example.com
+homepage: https://pub.dev/packages/heck
 
 environment:
   sdk: '>=2.15.1 <3.0.0'
